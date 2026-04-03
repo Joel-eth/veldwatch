@@ -3,7 +3,6 @@
 import os
 import tempfile
 
-import pytest
 from fastapi.testclient import TestClient
 
 # Point the store at a temp DB before importing the app
@@ -186,3 +185,37 @@ def test_list_alerts():
     resp = client.get("/alerts")
     assert resp.status_code == 200
     assert "alerts" in resp.json()
+
+
+# -- Run Trend --
+
+def test_run_trend_insufficient_data():
+    """Fewer than 3 runs → stable trends returned, no error."""
+    resp = client.get("/runs/trend?window=3")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "success_rate_trend" in data
+    assert "avg_duration_trend" in data
+    assert "any_regression" in data
+
+
+def test_run_trend_with_data():
+    """Create 5 completed runs and verify trend endpoint returns valid shape."""
+    for i in range(5):
+        r = client.post("/runs", json={"agent_id": f"trend-agent-{i}"})
+        run_id = r.json()["run_id"]
+        client.patch(f"/runs/{run_id}", json={"status": "completed"})
+
+    resp = client.get("/runs/trend?window=5")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["run_count"] >= 1
+    assert data["success_rate_trend"]["name"] == "success_rate"
+    assert data["avg_duration_trend"]["name"] == "avg_duration_s"
+    assert isinstance(data["any_regression"], bool)
+
+
+def test_run_trend_window_validation():
+    """window < 3 should be rejected."""
+    resp = client.get("/runs/trend?window=2")
+    assert resp.status_code == 422

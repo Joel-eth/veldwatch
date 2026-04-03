@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 
 from api.deps import get_store
-from api.models import EventCreate, EventResponse, EventListResponse
+from api.models import EventCreate, EventListResponse, EventResponse
 from veldwatch.store import BaseStore
 
 router = APIRouter(tags=["events"])
@@ -29,7 +29,7 @@ async def create_event(
         raise HTTPException(status_code=404, detail="Run not found")
 
     event_id = uuid.uuid4().hex
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     event = {
         "event_id": event_id,
         "run_id": run_id,

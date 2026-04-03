@@ -6,7 +6,7 @@ import json
 import sqlite3
 import threading
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -113,7 +113,7 @@ class SQLiteStore(BaseStore):
                 "agent_id": run.get("agent_id"),
                 "status": run.get("status", "running"),
                 "started_at": run.get(
-                    "started_at", datetime.now(timezone.utc).isoformat()
+                    "started_at", datetime.now(UTC).isoformat()
                 ),
                 "metadata": json.dumps(run.get("metadata")) if run.get("metadata") else None,
             },
@@ -147,7 +147,7 @@ class SQLiteStore(BaseStore):
     ) -> list[dict[str, Any]]:
         conn = self._get_conn()
         rows = conn.execute(
-            "SELECT * FROM runs ORDER BY started_at DESC LIMIT ? OFFSET ?",
+            "SELECT * FROM runs ORDER BY started_at DESC, rowid DESC LIMIT ? OFFSET ?",
             (limit, offset),
         ).fetchall()
         return [self._row_to_dict(r) for r in rows]
@@ -164,7 +164,7 @@ class SQLiteStore(BaseStore):
                 "run_id": event["run_id"],
                 "event_type": event["event_type"],
                 "timestamp": event.get(
-                    "timestamp", datetime.now(timezone.utc).isoformat()
+                    "timestamp", datetime.now(UTC).isoformat()
                 ),
                 "latency_ms": event.get("latency_ms"),
                 "payload": json.dumps(event.get("payload")) if event.get("payload") else None,
@@ -184,9 +184,10 @@ class SQLiteStore(BaseStore):
 
     def save_alert(self, alert: dict[str, Any]) -> None:
         conn = self._get_conn()
+        cols = "alert_id, run_id, rule_name, message, severity, triggered_at, resolved"
+        vals = ":alert_id, :run_id, :rule_name, :message, :severity, :triggered_at, :resolved"
         conn.execute(
-            "INSERT INTO alerts (alert_id, run_id, rule_name, message, severity, triggered_at, resolved) "
-            "VALUES (:alert_id, :run_id, :rule_name, :message, :severity, :triggered_at, :resolved)",
+            f"INSERT INTO alerts ({cols}) VALUES ({vals})",
             {
                 "alert_id": alert["alert_id"],
                 "run_id": alert.get("run_id"),
@@ -194,7 +195,7 @@ class SQLiteStore(BaseStore):
                 "message": alert["message"],
                 "severity": alert.get("severity", "warning"),
                 "triggered_at": alert.get(
-                    "triggered_at", datetime.now(timezone.utc).isoformat()
+                    "triggered_at", datetime.now(UTC).isoformat()
                 ),
                 "resolved": 1 if alert.get("resolved") else 0,
             },

@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from veldwatch.store import SQLiteStore
@@ -26,7 +25,12 @@ def test_save_and_get_run(tmp_path: Path):
 def test_update_run(tmp_path: Path):
     store = SQLiteStore(tmp_path / "test.db")
     store.save_run(
-        {"run_id": "run-002", "agent_id": "a", "status": "running", "started_at": "2026-01-01T00:00:00Z"}
+        {
+            "run_id": "run-002",
+            "agent_id": "a",
+            "status": "running",
+            "started_at": "2026-01-01T00:00:00Z",
+        }
     )
     store.update_run("run-002", {"status": "completed", "ended_at": "2026-01-01T00:01:00Z"})
 

@@ -1,7 +1,7 @@
 import json
 import logging
 
-from veldwatch.logger import get_logger, EventLogger, TRACE, StructuredFormatter
+from veldwatch.logger import TRACE, EventLogger, StructuredFormatter, get_logger
 
 
 def test_get_logger_returns_logger():

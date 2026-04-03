@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable
+from datetime import UTC, datetime
+from typing import Any
 
 from veldwatch.store import BaseStore
 
@@ -45,7 +46,7 @@ class AlertEngine:
                         "rule_name": rule.name,
                         "message": rule.message or f"Rule '{rule.name}' triggered",
                         "severity": rule.severity,
-                        "triggered_at": datetime.now(timezone.utc).isoformat(),
+                        "triggered_at": datetime.now(UTC).isoformat(),
                         "resolved": False,
                     }
                     self.store.save_alert(alert)
@@ -66,7 +67,7 @@ class AlertEngine:
                         "rule_name": rule.name,
                         "message": rule.message or f"Rule '{rule.name}' triggered",
                         "severity": rule.severity,
-                        "triggered_at": datetime.now(timezone.utc).isoformat(),
+                        "triggered_at": datetime.now(UTC).isoformat(),
                         "resolved": False,
                     }
                     self.store.save_alert(alert)

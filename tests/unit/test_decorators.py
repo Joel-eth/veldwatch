@@ -1,7 +1,6 @@
-import tempfile
 from pathlib import Path
 
-from veldwatch.sdk.decorators import watch, trace, set_default_store
+from veldwatch.sdk.decorators import set_default_store, trace, watch
 from veldwatch.store import SQLiteStore
 
 

@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, Query, Response
 
 from api.deps import get_store
 from api.models import (
+    AlertListResponse,
+    AlertResponse,
     AlertRuleCreate,
     AlertRuleResponse,
-    AlertResponse,
-    AlertListResponse,
 )
 from veldwatch.store import BaseStore
 

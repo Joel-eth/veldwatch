@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from veldwatch.alert import AlertEngine, AlertRule, max_duration_rule, error_status_rule
+from veldwatch.alert import AlertEngine, AlertRule, error_status_rule, max_duration_rule
 from veldwatch.store import SQLiteStore
 
 

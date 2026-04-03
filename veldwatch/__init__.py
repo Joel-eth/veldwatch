@@ -6,6 +6,7 @@ from veldwatch.alert import AlertEngine, AlertRule
 from veldwatch.logger import EventLogger, get_logger
 from veldwatch.store import BaseStore, SQLiteStore
 from veldwatch.tracer import Tracer
+from veldwatch.trend import RunTrendEngine, RunTrendReport
 from veldwatch.watcher import Watcher
 
 __all__ = [
@@ -13,8 +14,11 @@ __all__ = [
     "AlertRule",
     "BaseStore",
     "EventLogger",
+    "RunTrendEngine",
+    "RunTrendReport",
     "SQLiteStore",
     "Tracer",
     "Watcher",
     "get_logger",
 ]
+

@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from dataclasses import asdict
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from api.deps import get_store
-from api.models import RunCreate, RunUpdate, RunResponse, RunListResponse
+from api.models import RunCreate, RunListResponse, RunResponse, RunUpdate
 from veldwatch.store import BaseStore
+from veldwatch.trend import RunTrendEngine
 
 router = APIRouter(prefix="/runs", tags=["runs"])
 
@@ -20,7 +22,7 @@ async def create_run(
     store: BaseStore = Depends(get_store),
 ) -> RunResponse:
     run_id = uuid.uuid4().hex
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     run = {
         "run_id": run_id,
         "agent_id": body.agent_id,
@@ -46,6 +48,16 @@ async def list_runs(
     )
 
 
+@router.get("/trend")
+async def get_run_trend(
+    window: int = Query(default=20, ge=3, le=200),
+    store: BaseStore = Depends(get_store),
+) -> dict:
+    """Cross-run failure-rate and duration regression analysis."""
+    engine = RunTrendEngine(store, window=window)
+    return asdict(engine.analyze())
+
+
 @router.get("/{run_id}", response_model=RunResponse)
 async def get_run(
     run_id: str,
@@ -69,7 +81,7 @@ async def update_run(
 
     updates = body.model_dump(exclude_none=True)
     if updates.get("status") in ("completed", "failed") and not existing.get("ended_at"):
-        updates["ended_at"] = datetime.now(timezone.utc).isoformat()
+        updates["ended_at"] = datetime.now(UTC).isoformat()
 
     store.update_run(run_id, updates)
     updated = store.get_run(run_id)

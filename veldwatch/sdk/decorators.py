@@ -5,8 +5,9 @@ from __future__ import annotations
 import functools
 import time
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Callable
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import Any
 
 from veldwatch.store import BaseStore, SQLiteStore
 
@@ -47,7 +48,7 @@ def watch(
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             _store = store or get_default_store()
             run_id = uuid.uuid4().hex
-            started_at = datetime.now(timezone.utc).isoformat()
+            started_at = datetime.now(UTC).isoformat()
 
             _store.save_run(
                 {
@@ -67,7 +68,7 @@ def watch(
                     run_id,
                     {
                         "status": "completed",
-                        "ended_at": datetime.now(timezone.utc).isoformat(),
+                        "ended_at": datetime.now(UTC).isoformat(),
                     },
                 )
                 _store.save_event(
@@ -75,7 +76,7 @@ def watch(
                         "event_id": uuid.uuid4().hex,
                         "run_id": run_id,
                         "event_type": "run_completed",
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "latency_ms": elapsed,
                         "payload": None,
                     }
@@ -87,7 +88,7 @@ def watch(
                     run_id,
                     {
                         "status": "failed",
-                        "ended_at": datetime.now(timezone.utc).isoformat(),
+                        "ended_at": datetime.now(UTC).isoformat(),
                         "error": str(exc),
                     },
                 )
@@ -96,7 +97,7 @@ def watch(
                         "event_id": uuid.uuid4().hex,
                         "run_id": run_id,
                         "event_type": "run_failed",
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "latency_ms": elapsed,
                         "payload": {"error": str(exc), "error_type": type(exc).__name__},
                     }
@@ -141,7 +142,7 @@ def trace(
                         "event_id": uuid.uuid4().hex,
                         "run_id": run_id,
                         "event_type": event_type,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "latency_ms": elapsed,
                         "payload": {
                             "name": name or func.__name__,
@@ -157,7 +158,7 @@ def trace(
                         "event_id": uuid.uuid4().hex,
                         "run_id": run_id,
                         "event_type": event_type,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "latency_ms": elapsed,
                         "payload": {
                             "name": name or func.__name__,

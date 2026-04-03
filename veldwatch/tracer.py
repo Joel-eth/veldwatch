@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from veldwatch.store import BaseStore
@@ -36,7 +36,7 @@ class Tracer:
                 "run_id": self.run_id,
                 "agent_id": self.agent_id,
                 "status": "running",
-                "started_at": datetime.now(timezone.utc).isoformat(),
+                "started_at": datetime.now(UTC).isoformat(),
                 "metadata": self.metadata,
             }
         )
@@ -49,7 +49,7 @@ class Tracer:
             return
         updates: dict[str, Any] = {
             "status": status,
-            "ended_at": datetime.now(timezone.utc).isoformat(),
+            "ended_at": datetime.now(UTC).isoformat(),
         }
         if error:
             updates["error"] = error
@@ -70,7 +70,7 @@ class Tracer:
                 "event_id": event_id,
                 "run_id": self.run_id,
                 "event_type": event_type,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "latency_ms": latency_ms,
                 "payload": payload,
             }

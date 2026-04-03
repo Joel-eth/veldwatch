@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 
-from veldwatch.store import SQLiteStore, BaseStore
+from veldwatch.store import BaseStore, SQLiteStore
 
 
 @lru_cache
